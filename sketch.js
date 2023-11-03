@@ -1,6 +1,6 @@
-// Represents a single block, either moving or static
+// The Block class defines the properties and methods for each block on the canvas.
 class Block {
-  constructor(x, y, w, h, c, speedX, speedY) {
+  constructor(x, y, w, h, c, speedX, speedY, scale = 1, targetScale = 1) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -8,79 +8,86 @@ class Block {
     this.c = c;
     this.speedX = speedX;
     this.speedY = speedY;
+    this.scale = scale;
+    this.targetScale = targetScale;
   }
 
- // Draws the block on the canvas with its current properties
+// Displays the block on the canvas with its current properties.
   display() {
     fill(this.c);
-    rect(this.x, this.y, this.w, this.h);
+    rect(this.x, this.y, this.w * this.scale, this.h * this.scale);
   }
 
-// Updates the position of the block and reverses its direction if it hits an edge
+ // Updates the block's position and handles the bouncing logic.
   update() {
     this.x += this.speedX;
     this.y += this.speedY;
 
 
-    // Bounce off the edges
     if (this.x < 0 || this.x + this.w > width) {
       this.speedX *= -1;
     }
     if (this.y < 0 || this.y + this.h > height) {
       this.speedY *= -1;
     }
+
+// Gradually changes the block's scale to reach its target scale.
+    this.updateScale();
+  }
+ 
+  updateScale() {
+    if (this.scale < this.targetScale) {
+      this.scale +=1;
+    } else if (this.scale > this.targetScale) {
+      this.scale -= 0.02;
+    }
   }
 }
 
-// Arrays to store the static and dynamic blocks separately
+// Array to hold blocks that do not move.
 let staticBlocks = [];
+// Array to hold blocks that can move (dynamic blocks).
 let dynamicBlocks = [];
-let interval;
 
-// Sets up the initial environment when the program starts
+// The setup function initializes the canvas and static blocks.
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(229, 228, 240);
- 
-// Creating static blue blocks at specific positions with predefined colors and sizes
-  staticBlocks.push(new Block(windowWidth * 0.1, windowHeight * 0.16, windowWidth * 0.06, windowHeight * 0.06, color(0, 0, 255), 2, 3));
-  staticBlocks.push(new Block(windowWidth * 0.1, windowHeight * 0.7, windowWidth * 0.08, windowHeight * 0.08, color(0, 0, 255), 2, 3));
-  staticBlocks.push(new Block(windowWidth * 0.32, windowHeight * 0.52, windowWidth * 0.06, windowHeight * 0.1, color(0, 0, 255), 2, 3));
-  staticBlocks.push(new Block(windowWidth * 0.76, windowHeight * 0.32, windowWidth * 0.1, windowHeight * 0.2, color(0, 0, 255), 2, 3));
-  staticBlocks.push(new Block(windowWidth * 0.82, windowHeight * 0.7, windowWidth * 0.08, windowHeight * 0.08, color(0, 0, 255), 2, 3));
- 
-  // Creating static red blocks at specific positions with predefined colors and sizes
-  staticBlocks.push(new Block(windowWidth * 0.16, windowHeight * 0.04, windowWidth * 0.04, windowHeight * 0.18, color(255, 0, 0), 3, 2));
-  staticBlocks.push(new Block(windowWidth * 0.26, windowHeight * 0.04, windowWidth * 0.08, windowHeight * 0.12, color(255, 0, 0), 3, 2));
-  staticBlocks.push(new Block(windowWidth * 0.16, windowHeight * 0.54, windowWidth * 0.12, windowHeight * 0.08, color(255, 0, 0), 3, 2));
-  staticBlocks.push(new Block(windowWidth * 0.58, windowHeight * 0.4, windowWidth * 0.12, windowHeight * 0.1, color(255, 0, 0), 3, 2));
-  staticBlocks.push(new Block(windowWidth * 0.68, windowHeight * 0.6, windowWidth * 0.1, windowHeight * 0.14, color(255, 0, 0), 3, 2));
- 
-    // Creating static gray blocks at specific positions with predefined colors and sizes
-  staticBlocks.push(new Block(windowWidth * 0.28, windowHeight * 0.08, windowWidth * 0.06, windowHeight * 0.06, color(169), 2, 1));
-  staticBlocks.push(new Block(windowWidth * 0.46, windowHeight * 0.22, windowWidth * 0.1, windowHeight * 0.14, color(169), 2, 1));
-  staticBlocks.push(new Block(windowWidth * 0.46, windowHeight * 0.74, windowWidth * 0.06, windowHeight * 0.1, color(169), 2, 1));
-  staticBlocks.push(new Block(windowWidth * 0.74, windowHeight * 0.62, windowWidth * 0.08, windowHeight * 0.04, color(169), 2, 1));
-  staticBlocks.push(new Block(windowWidth * 0.8, windowHeight * 0.04, windowWidth * 0.1, windowHeight * 0.06, color(169), 2, 1));
+
+
+  staticBlocks.push(new Block(windowWidth * 0.1, windowHeight * 0.16, windowWidth * 0.06, windowHeight * 0.06, color(0, 0, 255), 2, 3, 1, 2));
+  staticBlocks.push(new Block(windowWidth * 0.1, windowHeight * 0.7, windowWidth * 0.08, windowHeight * 0.08, color(0, 0, 255), 2, 3, 1, 0.5));
+  staticBlocks.push(new Block(windowWidth * 0.32, windowHeight * 0.52, windowWidth * 0.06, windowHeight * 0.1, color(0, 0, 255), 2, 3, 1, 1.5));
+  staticBlocks.push(new Block(windowWidth * 0.76, windowHeight * 0.32, windowWidth * 0.1, windowHeight * 0.2, color(0, 0, 255), 2, 3, 1, 0.8));
+  staticBlocks.push(new Block(windowWidth * 0.82, windowHeight * 0.7, windowWidth * 0.08, windowHeight * 0.08, color(0, 0, 255), 2, 3, 1, 1.2));
+  staticBlocks.push(new Block(windowWidth * 0.16, windowHeight * 0.04, windowWidth * 0.04, windowHeight * 0.18, color(255, 0, 0), 3, 2, 1, 2));
+  staticBlocks.push(new Block(windowWidth * 0.26, windowHeight * 0.04, windowWidth * 0.08, windowHeight * 0.12, color(255, 0, 0), 3, 2, 1, 0.5));
+  staticBlocks.push(new Block(windowWidth * 0.16, windowHeight * 0.54, windowWidth * 0.12, windowHeight * 0.08, color(255, 0, 0), 3, 2, 1, 1.5));
+  staticBlocks.push(new Block(windowWidth * 0.58, windowHeight * 0.4, windowWidth * 0.12, windowHeight * 0.1, color(255, 0, 0), 3, 2, 1, 0.8));
+  staticBlocks.push(new Block(windowWidth * 0.68, windowHeight * 0.6, windowWidth * 0.1, windowHeight * 0.14, color(255, 0, 0), 3, 2, 1, 1.2));
+  staticBlocks.push(new Block(windowWidth * 0.28, windowHeight * 0.08, windowWidth * 0.06, windowHeight * 0.06, color(169), 2, 1, 1, 2));
+  staticBlocks.push(new Block(windowWidth * 0.46, windowHeight * 0.22, windowWidth * 0.1, windowHeight * 0.14, color(169), 2, 1, 1, 0.5));
+  staticBlocks.push(new Block(windowWidth * 0.46, windowHeight * 0.74, windowWidth * 0.06, windowHeight * 0.1, color(169), 2, 1, 1, 1.5));
+  staticBlocks.push(new Block(windowWidth * 0.74, windowHeight * 0.62, windowWidth * 0.08, windowHeight * 0.04, color(169), 2, 1, 1, 0.8));
+  staticBlocks.push(new Block(windowWidth * 0.8, windowHeight * 0.04, windowWidth * 0.1, windowHeight * 0.06, color(169), 2, 1, 1, 1.2));
 
 
   calculateDynamicBlocks();
 }
 
-// Calculate positions and create dynamic blocks
+
 function calculateDynamicBlocks() {
   dynamicBlocks = [];
 
- // Calculate adjusted positions for horizontal and vertical streets based on window size
+
   let yPosArray = calculatePositions([10, 50, 120, 150, 220, 250, 280, 340, 440], windowHeight);
   let xPosArray = calculatePositions([10, 30, 70, 140, 300, 330, 420, 440, 480, 500], windowWidth);
  
-  // Create dynamic blocks for horizontal and vertical streets
   horizontalStreets(yPosArray);
   verticalStreets(xPosArray);
 }
 
-
+// Takes an array of positions and a canvas size to adjust the positions to fit the canvas.
 function calculatePositions(positionArray, canvasSize) {
   let adjustedPositions = [];
   for (let pos of positionArray) {
@@ -89,8 +96,7 @@ function calculatePositions(positionArray, canvasSize) {
   return adjustedPositions;
 }
 
-// Creates dynamic blocks to represent horizontal streets
-function horizontalStreets(yPosArray) {
+// Creates a row of dynamic blocks for a "street" on the Y axis.
 function horizontalStreets(yPosArray) {
   for (let yPos of yPosArray) {
     for (let i = 0; i < width; i += 10) {
@@ -101,7 +107,7 @@ function horizontalStreets(yPosArray) {
   }
 }
 
-// Creates dynamic blocks to represent vertical streets
+// Creates a column of dynamic blocks for a "street" on the X axis.
 function verticalStreets(xPosArray) {
   for (let xPos of xPosArray) {
     for (let i = 0; i < height; i += 10) {
@@ -112,7 +118,7 @@ function verticalStreets(xPosArray) {
   }
 }
 
-// Maps a number to a color based on specified ranges
+// Maps a number to a specific color according to predefined ranges.
 function colourMap(num) {
   if (num >= 0 && num <= 65) {
     return color(255, 255, 0);
@@ -125,7 +131,7 @@ function colourMap(num) {
   }
 }
 
-// Draws the blocks on the canvas, updating their positions if they are dynamic
+// The draw function constantly updates the canvas, displaying and updating blocks.
 function draw() {
   background(229, 228, 240);
  
@@ -134,14 +140,20 @@ function draw() {
     block.update();
   }
  
-   // Display dynamic blocks without updating positions (since their speed is 0)
   for (let block of dynamicBlocks) {
     block.display();
   }
 }
 
-// Adjusts the canvas and dynamic blocks when the window is resized
+// Adjusts the canvas size and recalculates dynamic block positions when the window is resized.
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   calculateDynamicBlocks();
 }
+
+// Interval function to trigger scale updates for static blocks every 5 seconds.
+setInterval(() => {
+  for (let block of staticBlocks) {
+    block.updateScale();
+  }
+}, 5000);
