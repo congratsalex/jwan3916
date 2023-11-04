@@ -49,6 +49,14 @@ let staticBlocks = [];
 // Array to hold blocks that can move (dynamic blocks).
 let dynamicBlocks = [];
 
+function updateDynamicBlocksColor() {
+  for (let block of dynamicBlocks) {
+    let num = floor(random(101));
+    block.c = colourMap(num); 
+  }
+}
+
+
 // The setup function initializes the canvas and static blocks.
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -73,6 +81,14 @@ function setup() {
 
 
   calculateDynamicBlocks();
+  setInterval(() => {
+    for (let block of staticBlocks) {
+      block.updateScale();
+    }
+  }, 5000);
+
+ // Add timer for dynamic block color update
+  setInterval(updateDynamicBlocksColor, 1000);
 }
 
 
